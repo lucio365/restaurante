@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOVA — Agencia Espacial</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #050510;
+      --accent: #7b5ea7;
+      --cyan: #00e5ff;
+      --white: #f0f0ff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── STARS ── */
+    #stars {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(123,94,167,.2);
+      background: rgba(5,5,16,.6);
+    }
+    .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 4px; color: var(--cyan); }
+    nav ul { list-style: none; display: flex; gap: 2.5rem; }
+    nav ul a { color: var(--white); text-decoration: none; font-size: .9rem; letter-spacing: 1px; opacity: .7; transition: opacity .2s; }
+    nav ul a:hover { opacity: 1; color: var(--cyan); }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 0 1rem;
+    }
+    .hero-tag {
+      font-size: .75rem; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--cyan); border: 1px solid var(--cyan);
+      padding: .35rem 1.2rem; border-radius: 50px; margin-bottom: 2rem;
+      opacity: 0;
+    }
+    h1 {
+      font-size: clamp(3rem, 10vw, 8rem);
+      font-weight: 900; line-height: 1; letter-spacing: -2px;
+      opacity: 0;
+    }
+    h1 span { color: var(--accent); }
+    .hero-sub {
+      margin-top: 1.5rem; max-width: 520px;
+      font-size: 1.1rem; opacity: 0; line-height: 1.7;
+      color: rgba(240,240,255,.6);
+    }
+    .cta-group { display: flex; gap: 1rem; margin-top: 2.5rem; opacity: 0; }
+    .btn {
+      padding: .9rem 2.2rem; border-radius: 50px; font-size: .9rem;
+      letter-spacing: 1px; cursor: pointer; text-transform: uppercase;
+      font-weight: 700; border: none; transition: transform .15s;
+    }
+    .btn:hover { transform: translateY(-3px); }
+    .btn-primary { background: var(--cyan); color: #050510; }
+    .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--white); }
+
+    /* planet */
+    .planet-wrap {
+      position: absolute; right: 8%; top: 50%; transform: translateY(-50%);
+      width: clamp(200px, 30vw, 420px);
+      aspect-ratio: 1; opacity: 0;
+    }
+    .planet {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #8e6cc4 0%, #3b1f6e 50%, #100826 100%);
+      box-shadow: 0 0 80px rgba(123,94,167,.5), inset -30px -20px 60px rgba(0,0,0,.7);
+    }
+    .ring {
+      position: absolute; top: 50%; left: 50%;
+      width: 140%; height: 30%;
+      transform: translate(-50%, -50%) rotateX(70deg);
+      border-radius: 50%;
+      border: 18px solid rgba(123,94,167,.35);
+      box-shadow: 0 0 30px rgba(123,94,167,.3);
+      pointer-events: none;
+    }
+
+    /* scroll hint */
+    .scroll-hint {
+      position: absolute; bottom: 2.5rem;
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      opacity: 0; font-size: .75rem; letter-spacing: 2px; color: rgba(240,240,255,.4);
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, var(--cyan), transparent);
+    }
+
+    /* ── SECTION BASE ── */
+    section {
+      position: relative; z-index: 1;
+      padding: 8rem 2rem;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .section-label {
+      font-size: .7rem; letter-spacing: 5px; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 1rem; opacity: 0;
+    }
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800; line-height: 1.1; opacity: 0;
+    }
+
+    /* ── MISSIONS ── */
+    #missions { max-width: 1200px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem; margin-top: 3.5rem;
+    }
+    .card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(123,94,167,.2);
+      border-radius: 16px; padding: 2rem;
+      opacity: 0; transform: translateY(40px);
+      transition: border-color .3s, background .3s;
+    }
+    .card:hover { border-color: var(--cyan); background: rgba(0,229,255,.04); }
+    .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .card h3 { font-size: 1.1rem; margin-bottom: .6rem; }
+    .card p { font-size: .9rem; color: rgba(240,240,255,.55); line-height: 1.6; }
+
+    /* ── STATS ── */
+    #stats {
+      background: rgba(123,94,167,.07);
+      border-top: 1px solid rgba(123,94,167,.15);
+      border-bottom: 1px solid rgba(123,94,167,.15);
+      max-width: 100%; padding: 6rem 2rem;
+    }
+    .stats-inner {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 4rem; max-width: 900px; margin: 0 auto;
+    }
+    .stat { text-align: center; opacity: 0; }
+    .stat-num {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 900; color: var(--cyan); line-height: 1;
+    }
+    .stat-label { font-size: .8rem; letter-spacing: 2px; color: rgba(240,240,255,.5); margin-top: .4rem; }
+
+    /* ── TIMELINE ── */
+    #timeline-sec { max-width: 800px; }
+    .tl { margin-top: 3.5rem; display: flex; flex-direction: column; gap: 0; }
+    .tl-item {
+      display: flex; gap: 2rem; opacity: 0; transform: translateX(-30px);
+    }
+    .tl-left {
+      display: flex; flex-direction: column; align-items: center; min-width: 60px;
+    }
+    .tl-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--cyan); border: 2px solid var(--bg);
+      box-shadow: 0 0 10px var(--cyan); flex-shrink: 0; margin-top: 4px;
+    }
+    .tl-line { flex: 1; width: 2px; background: rgba(123,94,167,.3); margin-top: 4px; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-body { padding-bottom: 3rem; }
+    .tl-year { font-size: .75rem; letter-spacing: 3px; color: var(--accent); }
+    .tl-body h3 { margin: .3rem 0 .5rem; font-size: 1.1rem; }
+    .tl-body p { font-size: .9rem; color: rgba(240,240,255,.55); line-height: 1.6; }
+
+    /* ── CTA BANNER ── */
+    #cta-banner {
+      max-width: 100%; text-align: center;
+      background: linear-gradient(135deg, rgba(123,94,167,.15), rgba(0,229,255,.05));
+      border-top: 1px solid rgba(123,94,167,.2);
+      border-bottom: 1px solid rgba(123,94,167,.2);
+      padding: 7rem 2rem;
+    }
+    #cta-banner h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; opacity: 0; }
+    #cta-banner p { margin: 1rem auto; max-width: 500px; color: rgba(240,240,255,.55); opacity: 0; }
+    #cta-banner .btn { opacity: 0; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center; padding: 2.5rem;
+      font-size: .8rem; color: rgba(240,240,255,.25);
+      border-top: 1px solid rgba(123,94,167,.1);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Stars -->
+<div id="stars"></div>
+
+<!-- Nav -->
+<nav id="navbar">
+  <div class="logo">NOVA</div>
+  <ul>
+    <li><a href="#missions">Misiones</a></li>
+    <li><a href="#timeline-sec">Historia</a></li>
+    <li><a href="#cta-banner">Contacto</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-tag">Explorando el universo desde 2001</div>
+  <h1>Más allá<br>de las <span>estrellas</span></h1>
+  <p class="hero-sub">NOVA lleva a la humanidad a los confines del cosmos. Cada misión redefine lo posible.</p>
+  <div class="cta-group">
+    <button class="btn btn-primary">Ver misiones</button>
+    <button class="btn btn-outline">Nuestra historia</button>
+  </div>
+  <div class="planet-wrap" id="planet">
+    <div class="planet"></div>
+    <div class="ring"></div>
+  </div>
+  <div class="scroll-hint" id="scrollHint">
+    <span>scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- Missions -->
+<section id="missions">
+  <p class="section-label">Lo que hacemos</p>
+  <h2 class="section-title">Misiones activas</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🪐</div>
+      <h3>Proyecto Saturno IX</h3>
+      <p>Órbita de largo plazo alrededor de los anillos para estudiar su composición química y magnética.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌑</div>
+      <h3>Luna Base Alpha</h3>
+      <p>Establecimiento de una estación semipermanente en el polo sur lunar con capacidad para 12 personas.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔭</div>
+      <h3>Telescopio Vega</h3>
+      <p>El observatorio espacial más potente de la historia, capaz de detectar exoplanetas a 400 años luz.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🚀</div>
+      <h3>Marte 2031</h3>
+      <p>Misión tripulada de 900 días con destino al cráter Jezero. Primera colonia marciana de la humanidad.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div id="stats">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num" data-target="147">0</div><div class="stat-label">Misiones completadas</div></div>
+    <div class="stat"><div class="stat-num" data-target="38">0</div><div class="stat-label">Países aliados</div></div>
+    <div class="stat"><div class="stat-num" data-target="9200">0</div><div class="stat-label">Científicos activos</div></div>
+    <div class="stat"><div class="stat-num" data-target="24">0</div><div class="stat-label">Años de experiencia</div></div>
+  </div>
+</div>
+
+<!-- Timeline -->
+<section id="timeline-sec">
+  <p class="section-label">Nuestra historia</p>
+  <h2 class="section-title">Hitos que<br>cambiaron todo</h2>
+  <div class="tl">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body">
+        <div class="tl-year">2001</div>
+        <h3>Fundación de NOVA</h3>
+        <p>Un equipo de 12 visionarios funda la agencia con un único objetivo: hacer que el espacio sea accesible para todos.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body">
+        <div class="tl-year">2008</div>
+        <h3>Primer satélite propio</h3>
+        <p>Nova-1 entra en órbita baja terrestre y transmite las primeras imágenes desde 400 km de altitud.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body">
+        <div class="tl-year">2015</div>
+        <h3>Primer alunizaje privado</h3>
+        <p>El módulo Selene-IV toca suelo lunar con éxito, marcando un hito en la historia de la exploración espacial privada.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body">
+        <div class="tl-year">2025</div>
+        <h3>Telescopio Vega desplegado</h3>
+        <p>El observatorio más avanzado de la humanidad lleva ya un año descubriendo mundos en galaxias remotas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Banner -->
+<div id="cta-banner">
+  <h2>¿Listo para<br>despegar?</h2>
+  <p>Forma parte de la próxima generación de exploradores espaciales. El universo te espera.</p>
+  <button class="btn btn-primary">Únete a NOVA</button>
+</div>
+
+<footer>© 2026 NOVA Space Agency — Todos los derechos reservados</footer>
+
+<!-- GSAP CDN -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.defaults({ ease: "power3.out" });
+
+  /* ── STARS ── */
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 200; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    Object.assign(s.style, {
+      width: size + 'px', height: size + 'px',
+      top: Math.random() * 100 + '%',
+      left: Math.random() * 100 + '%',
+      opacity: Math.random() * 0.7 + 0.1
+    });
+    starsEl.appendChild(s);
+    gsap.to(s, {
+      opacity: Math.random() * 0.2 + 0.05,
+      duration: Math.random() * 3 + 1.5,
+      repeat: -1, yoyo: true,
+      delay: Math.random() * 5,
+      ease: "sine.inOut"
+    });
+  }
+
+  /* ── HERO TIMELINE ── */
+  const heroTl = gsap.timeline({ delay: 0.3 });
+  heroTl
+    .to('.hero-tag',  { autoAlpha: 1, y: 0, duration: .7, from: { y: 20 } })
+    .from('h1',       { autoAlpha: 0, y: 40, duration: .9 }, "-=.3")
+    .from('.hero-sub',{ autoAlpha: 0, y: 30, duration: .8 }, "-=.5")
+    .from('.cta-group',{ autoAlpha: 0, y: 20, duration: .7 }, "-=.4")
+    .from('#planet',  { autoAlpha: 0, scale: .7, x: 60, duration: 1.2, ease: "back.out(1.4)" }, "-=.8")
+    .from('#scrollHint', { autoAlpha: 0, y: -10, duration: .6 }, "-=.2");
+
+  /* hero-tag needs autoAlpha not opacity for .to */
+  gsap.set('.hero-tag', { autoAlpha: 0, y: 20 });
+
+  /* planet slow rotation */
+  gsap.to('.planet', { rotation: 360, duration: 60, repeat: -1, ease: "none" });
+  gsap.to('.ring',   { rotation: -360, duration: 40, repeat: -1, ease: "none" });
+
+  /* nav fade in */
+  gsap.from('#navbar', { autoAlpha: 0, y: -20, duration: .8, delay: 1 });
+
+  /* ── SCROLL: section labels & titles ── */
+  gsap.utils.toArray('.section-label').forEach(el => {
+    gsap.from(el, {
+      scrollTrigger: { trigger: el, start: "top 85%" },
+      autoAlpha: 0, y: 20, duration: .6
+    });
+  });
+  gsap.utils.toArray('.section-title').forEach(el => {
+    gsap.from(el, {
+      scrollTrigger: { trigger: el, start: "top 85%" },
+      autoAlpha: 0, y: 30, duration: .8, delay: .15
+    });
+  });
+
+  /* ── CARDS stagger ── */
+  gsap.to('.card', {
+    scrollTrigger: { trigger: '.cards', start: "top 80%" },
+    autoAlpha: 1, y: 0, duration: .7,
+    stagger: { each: 0.12, from: "start" }
+  });
+
+  /* ── STATS counter ── */
+  document.querySelectorAll('.stat').forEach((stat, i) => {
+    const numEl = stat.querySelector('.stat-num');
+    const target = +numEl.dataset.target;
+
+    ScrollTrigger.create({
+      trigger: stat,
+      start: "top 85%",
+      onEnter: () => {
+        gsap.from(stat, { autoAlpha: 0, y: 30, duration: .6, delay: i * .1 });
+        gsap.to({ val: 0 }, {
+          val: target,
+          duration: 2,
+          ease: "power2.out",
+          delay: i * .1,
+          onUpdate() { numEl.textContent = Math.round(this.targets()[0].val).toLocaleString(); }
+        });
+      }
+    });
+  });
+
+  /* ── TIMELINE items ── */
+  gsap.utils.toArray('.tl-item').forEach((item, i) => {
+    gsap.to(item, {
+      scrollTrigger: { trigger: item, start: "top 85%" },
+      autoAlpha: 1, x: 0, duration: .7, delay: i * .1
+    });
+  });
+
+  /* ── CTA BANNER ── */
+  const ctaTl = gsap.timeline({
+    scrollTrigger: { trigger: '#cta-banner', start: "top 75%" }
+  });
+  ctaTl
+    .from('#cta-banner h2',  { autoAlpha: 0, y: 40, duration: .8 })
+    .from('#cta-banner p',   { autoAlpha: 0, y: 20, duration: .6 }, "-=.4")
+    .from('#cta-banner .btn',{ autoAlpha: 0, scale: .85, duration: .5, ease: "back.out(2)" }, "-=.2");
+
+  /* ── PLANET parallax on scroll ── */
+  gsap.to('#planet', {
+    scrollTrigger: {
+      trigger: '#hero', start: "top top", end: "bottom top", scrub: 1
+    },
+    y: 120, scale: 0.85, ease: "none"
+  });
+
+  /* ── REDUCED MOTION ── */
+  const mm = gsap.matchMedia();
+  mm.add("(prefers-reduced-motion: reduce)", () => {
+    gsap.globalTimeline.timeScale(0);
+    gsap.set('*', { animation: 'none' });
+  });
+</script>
+</body>
+</html>
